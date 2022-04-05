@@ -134,7 +134,7 @@ for epoch in range(NUM_EPOCHS):
         with torch.no_grad():
             cost_matrix = batch["data"].to(device)
             path_cost = q_helper.calculate_model_cost(model, cost_matrix)
-            greedy_cost = q_helper.calculate_random_cost(cost_matrix)
+            greedy_cost = q_helper.calculate_geek_greedy_cost(cost_matrix)
             abs_loss_values.append(path_cost - greedy_cost)
             p_bar.set_postfix(
                 {"absolute_loss": np.average(torch.cat(abs_loss_values, 0))}

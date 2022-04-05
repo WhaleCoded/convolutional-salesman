@@ -143,6 +143,64 @@ def calculate_greedy_cost(cost_matrix: torch.Tensor) -> List[float]:
             origin_city = target_city
     return torch.Tensor(costs)
 
+def calculate_geek_greedy_cost(cost_matrix: torch.Tensor) -> List[float]:
+    costs = [0 for _ in cost_matrix]
+    for idx, cost_matrix in enumerate(cost_matrix):
+        sum = 0
+        counter = 0
+        j = 0
+        i = 0
+        min = torch.inf
+        visitedRouteList = {}
+    
+        # Starting from the 0th indexed
+        # city i.e., the first city
+        visitedRouteList[0] = 1
+        route = [0] * len(cost_matrix)
+    
+        # Traverse the adjacency
+        # matrix tsp[][]
+        while i < len(cost_matrix) and j < len(cost_matrix[i]):
+    
+            # Corner of the Matrix
+            if counter >= len(cost_matrix[i]) - 1:
+                break
+    
+            # If this path is unvisited then
+            # and if the cost is less then
+            # update the cost
+            if j != i and (visitedRouteList[j] == 0):
+                if cost_matrix[i][j] < min:
+                    min = cost_matrix[i][j]
+                    route[counter] = j + 1
+    
+            j += 1
+    
+            # Check all paths from the
+            # ith indexed city
+            if j == len(cost_matrix[i]):
+                sum += min
+                min = torch.inf
+                visitedRouteList[route[counter] - 1] = 1
+                j = 0
+                i = route[counter] - 1
+                counter += 1
+    
+        # Update the ending city in array
+        # from city which was last visited
+        i = route[counter - 1] - 1
+    
+        for j in range(len(cost_matrix)):
+    
+            if (i != j) and cost_matrix[i][j] < min:
+                min = cost_matrix[i][j]
+                route[counter] = j + 1
+    
+        sum += min
+        costs[idx] = sum
+
+    return costs
+
 def calculate_random_cost(cost_matrix: torch.Tensor) -> List[float]:
     costs = [0 for _ in cost_matrix]
     for idx, cost_matrix in enumerate(cost_matrix):
