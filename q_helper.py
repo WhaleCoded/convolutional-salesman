@@ -7,9 +7,8 @@ import math
 from torch import TensorType
 import torch
 
-IMPOSSIBLE_VALUE = 1000.0
-IMPOSSIBLE_THRESHOLD = 500.0
 Q_DISCOUNT_FACTOR = 0.9
+NUM_SPLITS = 1
 
 
 def calculate_q_matrix(
@@ -17,20 +16,26 @@ def calculate_q_matrix(
 ) -> torch.Tensor:
     cost_matrix, _, previous_move = torch.split(environment_state, 1, dim=1)
     n_cities = cost_matrix.shape[0]
-    q_actual = torch.full((n_cities, n_cities), fill_value=IMPOSSIBLE_VALUE)
+    q_actual = torch.full((n_cities, n_cities), fill_value=torch.inf)
 
     if any(previous_move):
         _, prev_target = torch.argmax(previous_move)
         for next_target in range(n_cities):
-            q_actual[prev_target, next_target] = calculate_q(
-                model, environment_state, prev_target, next_target
-            )
+            if cost_matrix[prev_target, next_target] == torch.inf:
+                q_actual[prev_target, next_target] = torch.inf
+            else:
+                q_actual[prev_target, next_target] = calculate_q(
+                    model, environment_state, prev_target, next_target
+                )
     else:
         for next_origin in range(n_cities):
             for next_target in range(n_cities):
-                q_actual[next_origin, next_target] = calculate_q(
-                    model, environment_state, next_origin, next_target
-                )
+                if cost_matrix[next_origin, next_target] == torch.inf:
+                    q_actual[next_origin, next_target] = torch.inf
+                else:
+                    q_actual[next_origin, next_target] = calculate_q(
+                        model, environment_state, next_origin, next_target
+                    )
     return q_actual
 
 
@@ -41,37 +46,34 @@ def calculate_q(
     target_city: int,
 ) -> float:
     cost_matrix, current_path, previous_move = torch.split(environment_state, 1, dim=1)
-    if cost_matrix[origin_city, target_city] > IMPOSSIBLE_THRESHOLD:
-        return IMPOSSIBLE_VALUE
-    n_cities = cost_matrix.shape[0]
-    edges_left = (n_cities - 1) - torch.sum(current_path)
-    costs = []
-    for _ in range(edges_left):
-        with torch.no_grad():
-            predicted_q = model(environment_state)
-            (origin_city, target_city), cost = get_model_move(
-                predicted_q, environment_state
-            )
+    future_costs = torch.inf
+    with torch.no_grad():
+        predicted_q = model(environment_state)
+        moves = get_n_model_moves(predicted_q, environment_state, NUM_SPLITS)
+        for move in moves:
+            origin_city, target_city = move
             previous_move = torch.zeros(cost_matrix.shape)
-            previous_move[origin_city][target_city] = 1
-            current_path[origin_city][target_city] = 1
-            environment_state = torch.stack(
+            previous_move[origin_city, target_city] = 1
+            next_path = current_path
+            next_path[origin_city, target_city] = 1
+            next_environment_state = torch.stack(
                 [cost_matrix, current_path, previous_move], dim=1
             )
-            costs.append(cost)
-    return q_function(costs)
+            potential_cost = calculate_q(
+                model, next_environment_state, origin_city, target_city
+            )
+            if potential_cost < future_costs:
+                future_costs = potential_cost
+    return cost_matrix[origin_city, target_city] + (future_costs * Q_DISCOUNT_FACTOR)
 
 
-def get_model_move(
-    predicted_q: torch.Tensor, environment_state: torch.Tensor
-) -> Tuple[Tuple[int, int], float]:
+def get_n_model_moves(
+    predicted_q: torch.Tensor,
+    environment_state: torch.Tensor,
+    num_moves: int = 1,
+) -> List[Tuple[int, int]]:
     cost_matrix, current_path, previous_move = torch.split(environment_state, 1, dim=1)
-
-
-def q_function(costs: List[float]) -> float:
-    total_cost = 0
-    for idx, cost in enumerate(costs):
-        total_cost += cost * (Q_DISCOUNT_FACTOR ^ idx)
+    return []
 
 
 def convert_edge_list_to_matrix(curr_path: Tuple[int, int], num_cities) -> np.ndarray:

@@ -37,7 +37,14 @@ train_set, test_set = dataset.split()
 
 train_loader = DataLoader(dataset=train_set, batch_size=32)
 test_loader = DataLoader(dataset=test_set, batch_size=32)
-loss_fn = nn.MSELoss()
+
+
+def loss_fn(prediction, target):
+    errors = torch.square(target - prediction)
+    errors = torch.where(errors == torch.inf, torch.zeros(errors.shape), errors)
+    return torch.mean(errors)
+
+
 optimizer = torch.optim.AdamW(
     model.parameters(), lr=3e-3, weight_decay=0.3, betas=(0.95, 0.99)
 )
