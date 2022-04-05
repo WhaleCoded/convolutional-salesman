@@ -46,6 +46,9 @@ def calculate_q(
     target_city: int,
 ) -> float:
     cost_matrix, current_path, previous_move = torch.split(environment_state, 1, dim=1)
+    n_cities = cost_matrix.shape[0]
+    if torch.sum(current_path) >= (n_cities - 1):
+        return 0
     future_costs = torch.inf
     with torch.no_grad():
         predicted_q = model(environment_state)
