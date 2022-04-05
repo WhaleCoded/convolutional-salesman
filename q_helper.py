@@ -1,4 +1,4 @@
-from typing import Tuple, List
+from typing import DefaultDict, Tuple, List
 import torch
 
 from utils import unravel_index
@@ -151,7 +151,7 @@ def calculate_geek_greedy_cost(cost_matrix: torch.Tensor) -> List[float]:
         j = 0
         i = 0
         min = torch.inf
-        visitedRouteList = {}
+        visitedRouteList = DefaultDict(int)
     
         # Starting from the 0th indexed
         # city i.e., the first city

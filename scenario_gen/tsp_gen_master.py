@@ -6,7 +6,7 @@ import numpy as np
 
 class TSPMaster():
 
-  def __init__( self, max_seed: int = 99999999999999999, max_time: int = 10, num_cities: int = 1000 ):
+  def __init__( self, max_seed: int = 10000, max_time: int = 10, num_cities: int = 1000 ):
     self._MAX_SEED = max_seed
     self._scenario = None
     self.solver = TSPSolver()
