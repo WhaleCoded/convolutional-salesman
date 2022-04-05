@@ -2,6 +2,7 @@ from typing import Tuple, List
 import torch
 
 from utils import unravel_index
+import numpy as np
 
 LARGE_VALUE = 100.0
 Q_DISCOUNT_FACTOR = 0.9
@@ -142,6 +143,26 @@ def calculate_greedy_cost(cost_matrix: torch.Tensor) -> List[float]:
             origin_city = target_city
     return torch.Tensor(costs)
 
+def calculate_random_cost(cost_matrix: torch.Tensor) -> List[float]:
+    costs = [0 for _ in cost_matrix]
+    for idx, cost_matrix in enumerate(cost_matrix):
+        tour_not_found = True
+        perm = np.random.permutation( len(cost_matrix) )
+        while tour_not_found:
+            #check if perm is valid
+            cost = 0
+            origin_city = None
+            for target_city in perm:
+                if origin_city != None:
+                    cost += cost_matrix[origin_city, target_city]
+                origin_city = target_city
+
+            if cost != torch.inf:
+                tour_not_found = False
+                costs[idx] = cost
+        
+
+    return torch.Tensor(costs)
 
 def calculate_model_cost(
     model: torch.nn.Module, cost_matrices: torch.Tensor
