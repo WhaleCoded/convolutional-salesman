@@ -74,7 +74,8 @@ for epoch in range(NUM_EPOCHS):
             optimizer.step()
             optimizer.zero_grad()
 
-            environment_state = q_helper.update_state(q_pred, environment_state)
+            best_moves = q_helper.get_n_model_moves(q_pred, environment_state)
+            environment_state = q_helper.update_state(environment_state, best_moves[0])
 
             p_bar.set_postfix({"average_loss": np.average(loss_values[-20:])})
             p_bar.update(1)
