@@ -13,17 +13,10 @@ class TSPDataset(GeneratorDataset):
         self.tsp_gen = TSPMaster(num_cities=num_cities)
         super().__init__(length)
 
-    def yield_item(self) -> DataItem:        
-        results = None
-        while results == None:
-            data = self.tsp_gen.generateNetwork()
-            results = self.tsp_gen.solve()
+    def yield_item(self) -> DataItem:       
+        data = self.tsp_gen.generateNetwork()           
 
-        final_matrix = np.zeros((self.num_cities, self.num_cities))
-        for edge in results:
-            final_matrix[edge[0]._index][edge[1]._index] = 1
-
-        return DataItem(data, target=final_matrix)
+        return DataItem(data)
     
     def __iter__(self) -> Iterator[dict]:
         for _ in range(self._length):
