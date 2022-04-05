@@ -62,7 +62,6 @@ test_loader = DataLoader(dataset=test_set, batch_size=32)
 
 
 def loss_fn(prediction, target):
-    print(target)
     target_mask = torch.where(
         (target == torch.inf) | (target == torch.nan), 0, 1
     ).bool()
