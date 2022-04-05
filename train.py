@@ -13,7 +13,7 @@ NUM_CITIES = 10
 
 
 class TSPConv(nn.Module):
-    LARGE_VALUE = 1000.0
+    LARGE_VALUE = 10000.0
 
     def __init__(self):
         super().__init__()

@@ -3,15 +3,14 @@ import torch
 
 from utils import unravel_index
 
-LARGE_VALUE = 10000.0
+LARGE_VALUE = 100.0
 Q_DISCOUNT_FACTOR = 0.9
-NUM_SPLITS = 2
 
 
 def calculate_q_matrix(
     model: torch.nn.Module,
     environment_states: torch.Tensor,
-    num_splits: int = NUM_SPLITS,
+    num_splits: int = 2,
 ) -> torch.Tensor:
     q_actuals = []
     for environment_state in environment_states:
@@ -80,7 +79,7 @@ def calculate_q(
     environment_state: torch.Tensor,
     origin_city: int,
     target_city: int,
-    num_splits: int = NUM_SPLITS,
+    num_splits: int = 2,
 ) -> float:
     cost_matrix, current_path, _ = torch.split(environment_state, 1, dim=0)
     cost_matrix, current_path = torch.squeeze(cost_matrix), torch.squeeze(current_path)
