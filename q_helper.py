@@ -3,6 +3,7 @@ import torch
 
 from utils import unravel_index
 import numpy as np
+import random
 
 LARGE_VALUE = 100.0
 Q_DISCOUNT_FACTOR = 0.9
@@ -134,10 +135,21 @@ def get_n_model_moves(
 def calculate_greedy_cost(cost_matrix: torch.Tensor) -> List[float]:
     costs = [0 for _ in cost_matrix]
     for idx, cost_matrix in enumerate(cost_matrix):
-        origin_city = 0
+        origin_city = random.randint(0, len(cost_matrix) - 1)
+        cities_visited = 0
+        visited_cities = DefaultDict(int)
         for _ in range(len(cost_matrix) - 1):
+            visited_cities[int(origin_city)] = 1
+            cities_visited += 1
             target_city = torch.argmin(cost_matrix[origin_city])
+            if visited_cities[int(target_city)] == 1 and cities_visited != len(cost_matrix):
+                for city_index in range(len(cost_matrix)):
+                    if cost_matrix[origin_city, city_index] != torch.inf and visited_cities[city_index] == 0:
+                        target_city = city_index
+                        break
             costs[idx] += cost_matrix[origin_city, target_city].to("cpu").item()
+            if costs[idx] == torch.inf:
+                temp = "tsop"
             cost_matrix[origin_city] = torch.inf
             cost_matrix[:, target_city] = torch.inf
             origin_city = target_city

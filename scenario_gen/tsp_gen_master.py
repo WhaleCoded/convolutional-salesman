@@ -10,7 +10,7 @@ class TSPMaster():
     self._MAX_SEED = max_seed
     self._scenario = None
     self.solver = TSPSolver()
-    self.diff = 'Hard (Deterministic)'
+    self.diff = 'Easy'
     self.size = num_cities
     SCALE = 1.0
     self.max_time = max_time
