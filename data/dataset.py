@@ -1,4 +1,4 @@
-from scenario_gen.tsp_gen_master import TSPMaster
+from data.graphs import generate_solvable_graph
 from typing import Tuple, Iterator
 import numpy as np
 from typing import Iterator, Tuple
@@ -96,12 +96,13 @@ class TSPDataset(GeneratorDataset):
     def __init__(self, length: int, num_cities: int = 1000) -> None:
         self.num_cities = num_cities
         self.length = length
-        self.tsp_gen = TSPMaster(num_cities=num_cities)
         super().__init__(length)
 
     def yield_item(self) -> DataItem:
-        data = self.tsp_gen.generateNetwork()
-
+        connection_proportion = (np.random.random() * 0.8) + 0.1
+        data = generate_solvable_graph(
+            num_cities=self.num_cities, connection_proportion=connection_proportion
+        )
         return DataItem(data)
 
     def __iter__(self) -> Iterator[dict]:

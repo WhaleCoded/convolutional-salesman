@@ -3,8 +3,8 @@ import torch
 
 from utils import unravel_index
 
-LARGE_VALUE = 100.0
-Q_DISCOUNT_FACTOR = 0.9
+LARGE_VALUE = 10000.0
+Q_DISCOUNT_FACTOR = 0.6
 
 
 def calculate_q_matrix(

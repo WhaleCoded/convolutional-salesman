@@ -5,7 +5,7 @@ import torch
 import numpy as np
 import q_helper
 
-from dataset import TSPDataset
+from data.dataset import TSPDataset
 from tqdm import tqdm
 
 NUM_EPOCHS = 200
@@ -54,7 +54,7 @@ model = TSPConv()
 device = "cuda:0"
 model.to(device)
 
-dataset = TSPDataset(length=80, num_cities=NUM_CITIES)
+dataset = TSPDataset(length=100, num_cities=NUM_CITIES)
 train_set, test_set = dataset.split()
 
 train_loader = DataLoader(dataset=train_set, batch_size=32)
@@ -74,7 +74,7 @@ def loss_fn(prediction, target):
 
 
 optimizer = torch.optim.AdamW(
-    model.parameters(), lr=3e-5, weight_decay=0.3, betas=(0.95, 0.99)
+    model.parameters(), lr=3e-8, weight_decay=0.3, betas=(0.95, 0.99)
 )
 
 curr_best_test = torch.inf
