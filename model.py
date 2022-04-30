@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 
-class TSPConv(nn.Module):
+class TspConv(nn.Module):
     LARGE_VALUE = 10000.0
 
     def __init__(self):
@@ -28,13 +28,29 @@ class TSPConv(nn.Module):
         )
 
     def forward(self, x):
-        inputs = TSPConv.scrub_inf(x)
+        inputs = TspConv.scrub_inf(x)
         return self.net(inputs)
 
     def scrub_inf(tensor: torch.Tensor) -> torch.Tensor:
         device = tensor.device
         return torch.where(
             tensor == torch.inf,
-            torch.full(tensor.shape, TSPConv.LARGE_VALUE).to(device),
+            torch.full(tensor.shape, TspConv.LARGE_VALUE).to(device),
             tensor,
         )
+
+
+class TspLoss:
+    def __init__(self, epsilon: float = 1e-15) -> None:
+        self.epsilon = epsilon
+
+    def __call__(self, prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        target_mask = torch.where(
+            (target == torch.inf) | (target == torch.nan), 0, 1
+        ).bool()
+        prediction_device = prediction.device
+        errors = torch.square(target - torch.squeeze(prediction))
+        errors = torch.where(
+            target_mask, errors, torch.zeros(errors.shape).to(prediction_device)
+        )
+        return torch.mean(errors) + self.epsilon

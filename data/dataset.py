@@ -92,7 +92,7 @@ class GeneratorDataset(IterableDataset):
         )
 
 
-class TSPDataset(GeneratorDataset):
+class TspDataset(GeneratorDataset):
     def __init__(self, length: int, num_cities: int = 1000) -> None:
         self.num_cities = num_cities
         self.length = length
