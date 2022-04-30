@@ -3,52 +3,14 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import torch
 import numpy as np
-import q_helper
-
-from data.dataset import TSPDataset
 from tqdm import tqdm
+
+import q_helper
+from data import TSPDataset
+from model import TSPConv
 
 NUM_EPOCHS = 200
 NUM_CITIES = 10
-
-
-class TSPConv(nn.Module):
-    LARGE_VALUE = 10000.0
-
-    def __init__(self):
-        super().__init__()
-        self.net = nn.Sequential(
-            nn.Conv2d(3, 32, 7, padding=3),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 7, padding=3),
-            nn.ReLU(),
-            nn.Conv2d(64, 128, 7, padding=3),
-            nn.ReLU(),
-            nn.Conv2d(128, 256, 7, padding=3),
-            nn.ReLU(),
-            nn.Conv2d(256, 128, 7, padding=3),
-            nn.ReLU(),
-            nn.Conv2d(128, 64, 7, padding=3),
-            nn.ReLU(),
-            nn.Conv2d(64, 32, 7, padding=3),
-            nn.ReLU(),
-            nn.Conv2d(32, 1, 7, padding=3),
-            nn.ReLU(),
-            nn.Conv2d(1, 1, 7, padding=3),
-        )
-
-    def forward(self, x):
-        inputs = TSPConv.scrub_inf(x)
-        return self.net(inputs)
-
-    def scrub_inf(tensor: torch.Tensor) -> torch.Tensor:
-        device = tensor.device
-        return torch.where(
-            tensor == torch.inf,
-            torch.full(tensor.shape, TSPConv.LARGE_VALUE).to(device),
-            tensor,
-        )
-
 
 model = TSPConv()
 device = "cuda:0"
@@ -93,6 +55,13 @@ for epoch in range(NUM_EPOCHS):
         current_path = torch.zeros(cost_matrix.shape).to(device)
         previous_move = torch.zeros(cost_matrix.shape).to(device)
 
+        # Rather than stepping through the rest of the path each time we take a step
+        # we should take all of our steps, and then update the model
+
+        # Although this will reduce our utilization of that particular batch, since
+        # we will not update our behavior before moving to the next city, it will speed
+        # up how quickly we get to a more novel set of examples. That is more valuable
+        # anyways
         for step in range(NUM_CITIES - 1):
             environment_states = torch.stack(
                 [cost_matrix, current_path, previous_move], dim=1
