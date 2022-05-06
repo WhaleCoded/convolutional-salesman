@@ -29,7 +29,7 @@ class TspConv(nn.Module):
 
     def forward(self, x):
         inputs = TspConv.scrub_inf(x)
-        return self.net(inputs)
+        return torch.squeeze(self.net(inputs))
 
     def scrub_inf(tensor: torch.Tensor) -> torch.Tensor:
         device = tensor.device

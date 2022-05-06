@@ -1,5 +1,7 @@
 import torch
 
+IMPOSSIBLE_VALUE = 10.0
+
 
 def generate_solvable_graph(
     num_cities: int = 10, connection_proportion: float = 0.5
@@ -17,5 +19,5 @@ def generate_solvable_graph(
         connections[city, city] = 0
         prev_city = city
     # Create final graph
-    infinities = torch.ones((num_cities, num_cities)) * torch.inf
-    return torch.where(connections, weights, infinities)
+    infinities = torch.ones((num_cities, num_cities)) * IMPOSSIBLE_VALUE
+    return torch.stack([torch.where(connections, weights, infinities), connections])

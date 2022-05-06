@@ -1,1 +1,1 @@
-from data.dataset import TSPDataset
+from data.dataset import TspDataset
