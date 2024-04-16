@@ -1,0 +1,9 @@
+.env
+/data
+/__pycache__/*
+/.vscode
+
+*/target
+Cargo.lock
+Lin-EffectiveHeuristicAlgorithm-1973.pdf
+```
