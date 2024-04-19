@@ -128,13 +128,13 @@ class Config:
         batches_per_checkpoint: int = int(os.getenv("BATCHES_PER_CHECKPOINT", 5000)),
         validation_tot_size: int = int(os.getenv("VALIDATION_TOTAL_SIZE", 1000)),
         train_problem_size_cutoff: int = int(
-            os.getenv("TRAIN_PROBLEM_SIZE_CUTOFF", 150)
+            os.getenv("TRAIN_PROBLEM_SIZE_CUTOFF", 100)
         ),
         test_problem_size_cutoff: int = int(os.getenv("TEST_PROBLEM_SIZE_CUTOFF", 201)),
         min_lr: float = float(os.getenv("MIN_LR", 0.0001)),
-        max_lr: float = float(os.getenv("MAX_LR", 0.01)),
+        max_lr: float = float(os.getenv("MAX_LR", 0.1)),
         num_path_variations_per_example: int = int(
-            os.getenv("NUM_PATH_VARIATIONS_PER_EXAMPLE", 8)
+            os.getenv("NUM_PATH_VARIATIONS_PER_EXAMPLE", 32)
         ),
         tot_train_batches: int = int(
             os.getenv(
@@ -236,10 +236,10 @@ class Config:
 
     def get_bssf_metric(self) -> Optional[float]:
         metrics = self.get_current_metrics(bssf=True)
-        if not metrics.path_construction_metrics:
+        if len(metrics.path_construction_metrics) == 0:
             return None
 
-        return metrics.path_construction_metrics[-1]
+        return min(metrics.path_construction_metrics)
 
     def store_new_checkpoint(
         self,
