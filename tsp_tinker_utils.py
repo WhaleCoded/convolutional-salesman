@@ -101,6 +101,7 @@ class TSPProblem:
             curr_col = 0
             for edge_cost in upper_triangle:
                 city_connections_w_costs[curr_row, curr_col] = edge_cost
+                city_connections_w_costs[curr_col, curr_row] = edge_cost
                 curr_col += 1
                 if curr_col == num_cities:
                     curr_row += 1
