@@ -1,3 +1,8 @@
+# Model Storage
+/bssf
+/checkpoint
+config.json
+
 .env
 /data
 /__pycache__/*
