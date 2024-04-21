@@ -69,10 +69,10 @@ class TSPSolution:
         calculation_time = float(json_dict["calculation_time"])
 
         algorithm_string = json_dict["algorithm_name"]
-        if algorithm_string not in TSPAlgorithm.__members__:
-            algorithm_name = TSPAlgorithm.UNKNOWN
-        else:
+        try:
             algorithm_name = TSPAlgorithm(algorithm_string)
+        except ValueError:
+            algorithm_name = TSPAlgorithm.UNKNOWN
 
         return cls(tot_cost, tour, optimal, calculation_time, algorithm_name)
 
