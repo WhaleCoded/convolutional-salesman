@@ -241,6 +241,20 @@ class Config:
 
         return min(metrics.path_construction_metrics)
 
+    def get_bssf_validation_loss(self) -> Optional[float]:
+        metrics = self.get_current_metrics(bssf=True)
+        if len(metrics.validation_loss) == 0:
+            return None
+
+        return metrics.validation_loss[-1]
+
+    def get_bssf_model_state_dict(self) -> Optional[torch.nn.Module]:
+        model_path = os.path.join(self.bssf_path, CHECKPOINT_MODEL_NAME)
+        if not os.path.exists(model_path):
+            return None
+
+        return torch.load(model_path)
+
     def store_new_checkpoint(
         self,
         checkpoint: Checkpoint,
